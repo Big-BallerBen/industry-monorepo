@@ -34,8 +34,7 @@
                         'neon-blue': '0 0 10px rgba(0, 224, 255, 0.3)',
                     },
                     animation: {
-                        'bounce-right': 'bounceRight 2s infinite',
-                        'bounce-down': 'bounceDown 2s infinite',
+                        'bounce-slow': 'bounce 2s infinite',
                         'pulse-glow': 'pulseGlow 3s infinite',
                         'cta-fade': 'fadeInUp 1s ease-out forwards',
                     },
@@ -47,14 +46,6 @@
                         fadeInUp: {
                             '0%': { opacity: 0, transform: 'translateY(20px)' },
                             '100%': { opacity: 1, transform: 'translateY(0)' },
-                        },
-                        bounceRight: {
-                            '0%, 100%': { transform: 'translateX(0)' },
-                            '50%': { transform: 'translateX(25%)' },
-                        },
-                        bounceDown: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(25%)' },
                         }
                     }
                 }
@@ -64,57 +55,15 @@
 
     <style>
         body { background-color: #050505; color: white; font-family: 'Space Grotesk', sans-serif; }
-        
-        /* Hide Scrollbar Globally */
-        ::-webkit-scrollbar { display: none; }
-        * { -ms-overflow-style: none; scrollbar-width: none; }
-
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
         .glass-panel { background: rgba(10, 10, 10, 0.6); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+        .nav-link { position: relative; color: #d1d5db; transition: color 0.3s ease; cursor: pointer; }
+        .nav-link:hover, .nav-link.active, .group:hover .nav-link { color: white; text-shadow: 0 0 8px rgba(255,255,255,0.5); }
+        .nav-link::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0%; height: 2px; background: #00e0ff; transition: width 0.3s ease; }
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+        .carousel-container { scroll-snap-type: y mandatory; overflow-y: scroll; height: 100vh; scroll-behavior: smooth; }
+        .carousel-slide { scroll-snap-align: start; height: 100vh; width: 100%; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         
-        /* Carousel Container: 
-           - Mobile: Horizontal Scroll (Row) 
-           - Desktop: Vertical Scroll (Col) 
-        */
-        .carousel-container {
-            display: flex;
-            width: 100vw;
-            height: 100vh; /* Fallback */
-            height: 100dvh; /* Mobile dynamic height */
-            overflow: hidden;
-            scroll-behavior: smooth;
-        }
-        
-        /* Mobile: Horizontal Snap */
-        @media (max-width: 768px) {
-            .carousel-container {
-                flex-direction: row;
-                overflow-x: scroll;
-                scroll-snap-type: x mandatory;
-            }
-            .carousel-slide {
-                min-width: 100vw; /* Full width per slide */
-                height: 100dvh;
-                scroll-snap-align: start;
-                overflow-y: auto; /* Allow vertical scrolling INSIDE the slide */
-            }
-        }
-
-        /* Desktop: Vertical Snap */
-        @media (min-width: 769px) {
-            .carousel-container {
-                flex-direction: column;
-                overflow-y: scroll;
-                scroll-snap-type: y mandatory;
-            }
-            .carousel-slide {
-                width: 100%;
-                height: 100vh;
-                scroll-snap-align: start;
-                overflow: hidden; /* Lock content on desktop */
-            }
-        }
-
-        /* Animations */
         @keyframes cardEnter { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
         @keyframes scanSweep { 0% { left: -150%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { left: 150%; opacity: 0; } }
         @keyframes borderFlicker { 0%, 100% { border-color: rgba(255,255,255,0.05); } 50% { border-color: rgba(0, 224, 255, 0.4); } }
@@ -130,6 +79,10 @@
 
         /* Loader */
         .loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; justify-content: center; align-items: center; transition: opacity 1s ease-out; }
+        
+         /* Mobile Menu */
+        .mobile-menu { transform: translateX(100%); transition: transform 0.3s ease-in-out; }
+        .mobile-menu.open { transform: translateX(0); }
     </style>
 </head>
 <body class="h-screen w-screen overflow-hidden bg-pure-black selection:bg-electric-blue selection:text-black">
@@ -139,101 +92,123 @@
         <div class="text-white font-display text-2xl tracking-[0.5em] animate-pulse">INDUSTRY<span class="text-electric-blue">.IO</span></div>
     </div>
 
+    <!-- FIXED HEADER -->
+    <header class="fixed top-0 left-0 w-full h-24 z-50 transition-all duration-300 glass-panel border-b border-glass-border flex justify-between items-center px-8">
+        <div class="flex items-center z-20">
+            <a href="/index.html" class="font-display font-black text-2xl tracking-tighter text-white drop-shadow-lg">INDUSTRY</a>
+        </div>
+        
+        <nav class="hidden md:flex absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 items-center gap-8">
+            <a href="/home.html" class="nav-link active font-display text-xs font-bold tracking-wider">HOME</a>
+            <a href="/about.html" class="nav-link font-display text-xs font-bold tracking-wider">ABOUT</a>
+            <div class="relative group">
+                <button class="nav-link font-display text-xs font-bold tracking-wider flex items-center gap-1 outline-none">
+                    DEMO <i data-lucide="chevron-down" class="w-3 h-3 transition-transform group-hover:rotate-180"></i>
+                </button>
+                <div class="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 w-40 bg-black/90 border border-glass-border rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-2 group-hover:translate-y-0 z-50 backdrop-blur-md">
+                    <a href="/demo/bar.html" class="block px-4 py-3 text-xs font-display font-bold tracking-wider hover:bg-white/10 text-gray-300 hover:text-white transition-colors border-b border-white/5 text-center">BAR DEMO</a>
+                    <a href="/demo/staff.html" class="block px-4 py-3 text-xs font-display font-bold tracking-wider hover:bg-white/10 text-gray-300 hover:text-white transition-colors text-center">STAFF DEMO</a>
+                </div>
+            </div>
+            <a href="/download.html" class="nav-link font-display text-xs font-bold tracking-wider text-electric-blue drop-shadow-[0_0_5px_rgba(0,224,255,0.5)]">DOWNLOAD NOW</a>
+        </nav>
+
+        <div class="flex items-center gap-6 z-20">
+            <button class="hidden md:flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-electric-blue/30 rounded-lg transition-all text-xs font-bold tracking-wider text-electric-blue shadow-neon-blue group backdrop-blur-sm">
+                <i data-lucide="user" class="w-4 h-4 group-hover:rotate-12 transition-transform"></i> LOG IN
+            </button>
+             <button class="md:hidden text-white" onclick="toggleMobileMenu()">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+        </div>
+    </header>
+
+     <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="mobile-menu fixed inset-0 z-40 bg-pure-black/95 backdrop-blur-xl flex flex-col items-center justify-center gap-8 md:hidden">
+        <button class="absolute top-8 right-8 text-white" onclick="toggleMobileMenu()">
+            <i data-lucide="x" class="w-8 h-8"></i>
+        </button>
+        <a href="/home.html" class="font-display text-2xl font-bold text-white tracking-wider">HOME</a>
+        <a href="/about.html" class="font-display text-2xl font-bold text-white tracking-wider">ABOUT</a>
+        <a href="/demo/bar.html" class="font-display text-2xl font-bold text-white tracking-wider">BAR DEMO</a>
+        <a href="/demo/staff.html" class="font-display text-2xl font-bold text-white tracking-wider">STAFF DEMO</a>
+        <a href="/download.html" class="font-display text-2xl font-bold text-electric-blue tracking-wider">DOWNLOAD NOW</a>
+        <a href="#" class="font-display text-xl font-bold text-gray-400 tracking-wider flex items-center gap-2"><i data-lucide="user" class="w-5 h-5"></i> LOG IN</a>
+    </div>
+
     <!-- MAIN SCROLL CONTAINER -->
-    <!-- ID used for Observer -->
     <main class="carousel-container" id="main-scroll">
         
         <!-- SLIDE 1: HERO SECTION -->
-        <section class="carousel-slide bg-pure-black relative flex-shrink-0">
+        <section class="carousel-slide bg-pure-black">
             <div class="absolute inset-0 z-0">
                 <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80 z-10"></div>
                 <img src="https://images.unsplash.com/photo-1566737236500-c8ac43014a67?q=80&w=2940&auto=format&fit=crop" alt="Nightlife Crowd" class="w-full h-full object-cover opacity-80">
             </div>
-            
-            <!-- Content Container: Moved UP via justify-center and pb adjustments -->
-            <!-- Added 'pt-20 md:pt-0' to control top spacing -->
-            <!-- Added 'pb-32' to physically push content up away from bottom -->
-            <div class="relative z-10 text-center px-4 max-w-5xl mx-auto flex flex-col items-center justify-center h-full pt-12 pb-32 md:pb-0 md:pt-0">
-                
-                <h1 class="font-display font-black text-4xl sm:text-5xl md:text-7xl lg:text-8xl tracking-tight text-white mb-4 md:mb-6 leading-tight drop-shadow-2xl">
+            <div class="relative z-10 text-center px-4 max-w-5xl mx-auto flex flex-col items-center justify-center h-full pt-20">
+                <h1 class="font-display font-black text-5xl md:text-7xl lg:text-8xl tracking-tight text-white mb-6 leading-tight drop-shadow-2xl">
                     BUILT FOR <span class="text-transparent bg-clip-text bg-gradient-to-r from-electric-blue to-white">NIGHTLIFE.</span><br>
                     POWERED BY <span class="text-transparent bg-clip-text bg-gradient-to-r from-neon-rose to-purple-500">AI.</span>
                 </h1>
-                
-                <p class="font-body text-gray-300 text-sm md:text-lg lg:text-xl tracking-wide max-w-2xl mb-6 md:mb-10 leading-relaxed">
+                <p class="font-body text-gray-300 text-lg md:text-xl tracking-wide max-w-2xl mb-10 leading-relaxed">
                     Plug into the future of nightlife staffing. Let CoPilot handle the rest.
                 </p>
-                
-                <div class="flex flex-col md:flex-row gap-3 md:gap-6 items-center w-full justify-center">
-                    <a href="/download.html" class="w-full md:w-64 px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(34,211,238,0.4)] hover:scale-[1.05] active:scale-[0.98] font-display text-xs tracking-[0.2em] uppercase text-center">Join Now</a>
-                    <a href="/demo/bar.html" class="w-full md:w-64 px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/30 hover:border-white text-white font-bold rounded-xl transition-all duration-300 backdrop-blur-md hover:scale-[1.05] active:scale-[0.98] font-display text-xs tracking-[0.2em] uppercase text-center">Explore Demo</a>
-                    <a href="/download.html" class="w-full md:w-64 px-8 py-4 bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-400 hover:to-rose-500 text-white font-bold rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(255,126,179,0.4)] hover:scale-[1.05] active:scale-[0.98] font-display text-xs tracking-[0.2em] uppercase text-center">Download Now</a>
+                <div class="flex flex-col md:flex-row gap-6 items-center">
+                    <a href="/download.html" class="w-64 px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(34,211,238,0.4)] hover:scale-[1.05] active:scale-[0.98] font-display text-xs tracking-[0.2em] uppercase text-center">Join Now</a>
+                    <a href="/demo/bar.html" class="w-64 px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/30 hover:border-white text-white font-bold rounded-xl transition-all duration-300 backdrop-blur-md hover:scale-[1.05] active:scale-[0.98] font-display text-xs tracking-[0.2em] uppercase text-center">Explore Demo</a>
+                    <a href="/download.html" class="w-64 px-8 py-4 bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-400 hover:to-rose-500 text-white font-bold rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(255,126,179,0.4)] hover:scale-[1.05] active:scale-[0.98] font-display text-xs tracking-[0.2em] uppercase text-center">Download Now</a>
                 </div>
             </div>
-            
-            <!-- Indicator: Shows Swipe on Mobile, Scroll on Desktop -->
-            <div class="absolute bottom-6 inset-x-0 flex flex-col items-center gap-2 opacity-80 animate-pulse-glow z-30 pointer-events-none">
-                <!-- Desktop Text -->
-                <span class="hidden md:block text-[10px] uppercase tracking-widest text-gray-400">Scroll to Explore</span>
-                <i data-lucide="chevron-down" class="hidden md:block w-6 h-6 text-electric-blue animate-bounce-down"></i>
-                
-                <!-- Mobile Text -->
-                <span class="md:hidden text-[10px] uppercase tracking-widest text-gray-400">Swipe to Explore</span>
-                <i data-lucide="move-right" class="md:hidden w-6 h-6 text-electric-blue animate-bounce-right"></i>
+            <div class="absolute bottom-10 inset-x-0 flex flex-col items-center gap-2 opacity-80 animate-pulse-glow z-20 pointer-events-none">
+                <span class="text-[10px] uppercase tracking-widest text-gray-400">Scroll to Explore</span>
+                <i data-lucide="chevron-down" class="w-6 h-6 text-electric-blue animate-bounce-slow"></i>
             </div>
         </section>
 
         <!-- SLIDE 2: INDUSTRY COPILOT -->
-        <section id="slide-copilot" class="carousel-slide bg-pure-black relative border-t border-white/5 flex-shrink-0">
+        <section id="slide-copilot" class="carousel-slide bg-pure-black relative border-t border-white/5">
             <div class="absolute inset-0 z-0">
                 <div class="absolute inset-0 bg-[#000000CC] z-10"></div> 
                 <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2670&auto=format&fit=crop" alt="Nightclub Ops Control Room" class="w-full h-full object-cover opacity-100 object-center">
             </div>
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-electric-blue/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
-            
-            <!-- Allow vertical scroll INSIDE slide on mobile if content overflows -->
-            <div class="relative z-10 w-full max-w-[90vw] mx-auto px-4 md:px-6 flex flex-col items-center justify-center h-full pt-16 md:pt-20">
-                
-                <div class="text-center mb-6 md:mb-16 flex-shrink-0">
+            <div class="relative z-10 w-full max-w-[90vw] mx-auto px-6 flex flex-col items-center justify-center h-full pt-20">
+                <div class="text-center mb-12 md:mb-16">
                      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] tracking-widest text-electric-blue mb-4 backdrop-blur-md"><i data-lucide="cpu" class="w-3 h-3"></i> INTELLIGENCE LAYER</div>
-                    <h2 class="font-display font-black text-3xl md:text-6xl text-white mb-4 tracking-tight">INDUSTRY <span class="text-transparent bg-clip-text bg-gradient-to-r from-electric-blue to-uv-teal">COPILOT</span></h2>
-                    <p class="font-body text-gray-400 text-xs md:text-base max-w-xl mx-auto leading-relaxed">Automate, optimize, and elevate your hiring operations.</p>
+                    <h2 class="font-display font-black text-4xl md:text-6xl text-white mb-4 tracking-tight">INDUSTRY <span class="text-transparent bg-clip-text bg-gradient-to-r from-electric-blue to-uv-teal">COPILOT</span></h2>
+                    <p class="font-body text-gray-400 text-sm md:text-base max-w-xl mx-auto leading-relaxed">Automate, optimize, and elevate your hiring operations with the world's first nightlife-specific AI assistant.</p>
                 </div>
-                
-                <!-- Scrollable Grid Container for Mobile Safety -->
-                <div class="w-full overflow-y-auto max-h-[65vh] md:max-h-none pb-20 md:pb-0 no-scrollbar">
-                    <div id="feature-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 w-full">
-                        <div class="feature-card glass-panel p-5 md:p-8 rounded-2xl border border-white/5 hover:border-electric-blue/50 transition-colors duration-500 group hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(0,224,255,0.1)] bg-black/40">
-                            <div class="scan-overlay absolute inset-0 bg-gradient-to-r from-transparent via-electric-blue/10 to-transparent skew-x-[20deg] pointer-events-none opacity-0"></div>
-                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-electric-blue/10 flex items-center justify-center mb-4 md:mb-6 group-hover:bg-electric-blue/20 transition-colors border border-electric-blue/20 relative z-10"><i data-lucide="sparkles" class="w-5 h-5 md:w-6 md:h-6 text-electric-blue"></i></div>
-                            <h3 class="font-display font-bold text-lg md:text-xl text-white mb-2 md:mb-3 relative z-10">Smart Matching</h3>
-                            <p class="font-body text-gray-400 text-xs md:text-sm leading-relaxed relative z-10">Get matched with the right staff before you even click. AI analyzes fit based on vibe and experience.</p>
-                        </div>
-                        <div class="feature-card glass-panel p-5 md:p-8 rounded-2xl border border-white/5 hover:border-neon-rose/50 transition-colors duration-500 group hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(255,126,179,0.1)] bg-black/40">
-                            <div class="scan-overlay absolute inset-0 bg-gradient-to-r from-transparent via-neon-rose/10 to-transparent skew-x-[20deg] pointer-events-none opacity-0"></div>
-                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-neon-rose/10 flex items-center justify-center mb-4 md:mb-6 group-hover:bg-neon-rose/20 transition-colors border border-neon-rose/20 relative z-10"><i data-lucide="zap" class="w-5 h-5 md:w-6 md:h-6 text-neon-rose"></i></div>
-                            <h3 class="font-display font-bold text-lg md:text-xl text-white mb-2 md:mb-3 relative z-10">Automated Flows</h3>
-                            <p class="font-body text-gray-400 text-xs md:text-sm leading-relaxed relative z-10">Approve applicants, schedule interviews, and fill roles — all with a single tap.</p>
-                        </div>
-                        <div class="feature-card glass-panel p-5 md:p-8 rounded-2xl border border-white/5 hover:border-uv-teal/50 transition-colors duration-500 group hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(0,247,209,0.1)] bg-black/40">
-                            <div class="scan-overlay absolute inset-0 bg-gradient-to-r from-transparent via-uv-teal/10 to-transparent skew-x-[20deg] pointer-events-none opacity-0"></div>
-                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-uv-teal/10 flex items-center justify-center mb-4 md:mb-6 group-hover:bg-uv-teal/20 transition-colors border border-uv-teal/20 relative z-10"><i data-lucide="shield-check" class="w-5 h-5 md:w-6 md:h-6 text-uv-teal"></i></div>
-                            <h3 class="font-display font-bold text-lg md:text-xl text-white mb-2 md:mb-3 relative z-10">Trust Signal Engine</h3>
-                            <p class="font-body text-gray-400 text-xs md:text-sm leading-relaxed relative z-10">Staff ranked by reviews, shift history, and your venue’s unique preferences.</p>
-                        </div>
-                        <div class="feature-card glass-panel p-5 md:p-8 rounded-2xl border border-white/5 hover:border-white/50 transition-colors duration-500 group hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(255,255,255,0.1)] bg-black/40">
-                            <div class="scan-overlay absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[20deg] pointer-events-none opacity-0"></div>
-                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-white/10 flex items-center justify-center mb-4 md:mb-6 group-hover:bg-white/20 transition-colors border border-white/20 relative z-10"><i data-lucide="message-square-dashed" class="w-5 h-5 md:w-6 md:h-6 text-white"></i></div>
-                            <h3 class="font-display font-bold text-lg md:text-xl text-white mb-2 md:mb-3 relative z-10">Live AI Suggestions</h3>
-                            <p class="font-body text-gray-400 text-xs md:text-sm leading-relaxed relative z-10">Receive smart prompts during hiring to reduce no-shows and boost fit.</p>
-                        </div>
+                <div id="feature-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+                    <div class="feature-card glass-panel p-8 rounded-2xl border border-white/5 hover:border-electric-blue/50 transition-colors duration-500 group hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(0,224,255,0.1)] bg-black/40">
+                        <div class="scan-overlay absolute inset-0 bg-gradient-to-r from-transparent via-electric-blue/10 to-transparent skew-x-[20deg] pointer-events-none opacity-0"></div>
+                        <div class="w-12 h-12 rounded-lg bg-electric-blue/10 flex items-center justify-center mb-6 group-hover:bg-electric-blue/20 transition-colors border border-electric-blue/20 relative z-10"><i data-lucide="sparkles" class="w-6 h-6 text-electric-blue"></i></div>
+                        <h3 class="font-display font-bold text-xl text-white mb-3 relative z-10">Smart Matching</h3>
+                        <p class="font-body text-gray-400 text-sm leading-relaxed relative z-10">Get matched with the right staff before you even click. AI analyzes fit based on vibe, experience, and availability.</p>
+                    </div>
+                    <div class="feature-card glass-panel p-8 rounded-2xl border border-white/5 hover:border-neon-rose/50 transition-colors duration-500 group hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(255,126,179,0.1)] bg-black/40">
+                         <div class="scan-overlay absolute inset-0 bg-gradient-to-r from-transparent via-neon-rose/10 to-transparent skew-x-[20deg] pointer-events-none opacity-0"></div>
+                         <div class="w-12 h-12 rounded-lg bg-neon-rose/10 flex items-center justify-center mb-6 group-hover:bg-neon-rose/20 transition-colors border border-neon-rose/20 relative z-10"><i data-lucide="zap" class="w-6 h-6 text-neon-rose"></i></div>
+                        <h3 class="font-display font-bold text-xl text-white mb-3 relative z-10">Automated Hiring Flows</h3>
+                        <p class="font-body text-gray-400 text-sm leading-relaxed relative z-10">Approve applicants, schedule interviews, and fill roles — all with a single tap. Let the system handle the logistics.</p>
+                    </div>
+                    <div class="feature-card glass-panel p-8 rounded-2xl border border-white/5 hover:border-uv-teal/50 transition-colors duration-500 group hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(0,247,209,0.1)] bg-black/40">
+                         <div class="scan-overlay absolute inset-0 bg-gradient-to-r from-transparent via-uv-teal/10 to-transparent skew-x-[20deg] pointer-events-none opacity-0"></div>
+                         <div class="w-12 h-12 rounded-lg bg-uv-teal/10 flex items-center justify-center mb-6 group-hover:bg-uv-teal/20 transition-colors border border-uv-teal/20 relative z-10"><i data-lucide="shield-check" class="w-6 h-6 text-uv-teal"></i></div>
+                        <h3 class="font-display font-bold text-xl text-white mb-3 relative z-10">Trust Signal Engine</h3>
+                        <p class="font-body text-gray-400 text-sm leading-relaxed relative z-10">Staff ranked by reviews, shift history, and your venue’s unique preferences. Hire with data-backed confidence.</p>
+                    </div>
+                    <div class="feature-card glass-panel p-8 rounded-2xl border border-white/5 hover:border-white/50 transition-colors duration-500 group hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(255,255,255,0.1)] bg-black/40">
+                         <div class="scan-overlay absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[20deg] pointer-events-none opacity-0"></div>
+                         <div class="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center mb-6 group-hover:bg-white/20 transition-colors border border-white/20 relative z-10"><i data-lucide="message-square-dashed" class="w-6 h-6 text-white"></i></div>
+                        <h3 class="font-display font-bold text-xl text-white mb-3 relative z-10">Live AI Suggestions</h3>
+                        <p class="font-body text-gray-400 text-sm leading-relaxed relative z-10">Receive smart prompts during hiring to reduce no-shows and boost fit. Your personal hiring consultant, 24/7.</p>
                     </div>
                 </div>
             </div>
         </section>
         
         <!-- SLIDE 3: HOW IT WORKS -->
-        <section id="slide-how-it-works" class="carousel-slide bg-pure-black relative border-t border-white/5 flex-shrink-0">
+        <section id="slide-how-it-works" class="carousel-slide bg-pure-black relative border-t border-white/5">
             <div class="absolute inset-0 bg-[#000000CC] z-10 pointer-events-none"></div>
             <div id="bg-bar-layer" class="absolute inset-0 z-0 transition-opacity duration-700 ease-in-out opacity-100">
                 <img src="https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?q=80&w=2929&auto=format&fit=crop" alt="Upscale Bar Interior" class="w-full h-full object-cover">
@@ -243,113 +218,103 @@
             </div>
             <div class="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-electric-blue/5 rounded-full blur-[100px] pointer-events-none z-10"></div>
             <div class="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] bg-neon-rose/5 rounded-full blur-[100px] pointer-events-none z-10"></div>
-            
-            <div class="relative z-20 max-w-[90vw] mx-auto px-6 flex flex-col items-center justify-center h-full pt-16 md:pt-0">
-                <div class="relative flex bg-black/50 border border-electric-blue/30 rounded-full p-1 mb-8 backdrop-blur-md shadow-neon-blue flex-shrink-0">
+            <div class="relative z-20 max-w-[90vw] mx-auto px-6 flex flex-col items-center justify-center h-full">
+                <div class="relative flex bg-black/50 border border-electric-blue/30 rounded-full p-1 mb-12 backdrop-blur-md shadow-neon-blue">
                     <div id="toggle-indicator" class="absolute top-1 left-1 w-[calc(50%-4px)] h-[calc(100%-8px)] bg-electric-blue rounded-full transition-all duration-300 ease-out z-0"></div>
-                    <button onclick="switchView('bar')" id="btn-bar" class="relative z-10 px-6 md:px-8 py-2 md:py-3 text-[10px] md:text-xs font-display font-bold tracking-wider text-black transition-colors duration-300 uppercase">Bar View</button>
-                    <button onclick="switchView('staff')" id="btn-staff" class="relative z-10 px-6 md:px-8 py-2 md:py-3 text-[10px] md:text-xs font-display font-bold tracking-wider text-white transition-colors duration-300 uppercase">Staff View</button>
+                    <button onclick="switchView('bar')" id="btn-bar" class="relative z-10 px-8 py-3 text-xs font-display font-bold tracking-wider text-black transition-colors duration-300 uppercase">Bar View</button>
+                    <button onclick="switchView('staff')" id="btn-staff" class="relative z-10 px-8 py-3 text-xs font-display font-bold tracking-wider text-white transition-colors duration-300 uppercase">Staff View</button>
                 </div>
-                
-                <!-- Scrollable Content Area for Mobile -->
-                <div class="w-full overflow-y-auto max-h-[65vh] md:max-h-none no-scrollbar pb-20 md:pb-0">
-                    <!-- Bar View -->
-                    <div id="bar-view" class="w-full max-w-6xl flex flex-col items-center transition-all duration-500 ease-out transform translate-y-0 opacity-100">
-                        <h2 class="font-display font-black text-2xl md:text-5xl text-white mb-8 tracking-tight text-center">Hiring in Seconds. <br class="md:hidden"><span class="text-electric-blue">Managing with Ease.</span></h2>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 w-full">
-                            <div class="glass-panel p-5 md:p-8 rounded-2xl border border-white/5 hover:border-electric-blue/50 transition-all duration-300 hover:-translate-y-1 group bg-black/40">
-                                <div class="w-10 h-10 md:w-14 md:h-14 rounded-xl bg-electric-blue/10 flex items-center justify-center mb-4 border border-electric-blue/20 group-hover:shadow-[0_0_20px_rgba(0,224,255,0.2)] transition-all"><i data-lucide="clipboard-list" class="w-5 h-5 md:w-7 md:h-7 text-electric-blue"></i></div>
-                                <h3 class="font-display font-bold text-lg md:text-xl text-white mb-2">1. Post a Shift</h3>
-                                <p class="font-body text-gray-400 text-xs md:text-sm">Set the role, vibe, time, and pay. Launch your open call in moments.</p>
-                            </div>
-                            <div class="glass-panel p-5 md:p-8 rounded-2xl border border-white/5 hover:border-electric-blue/50 transition-all duration-300 hover:-translate-y-1 group bg-black/40">
-                                <div class="w-10 h-10 md:w-14 md:h-14 rounded-xl bg-electric-blue/10 flex items-center justify-center mb-4 border border-electric-blue/20 group-hover:shadow-[0_0_20px_rgba(0,224,255,0.2)] transition-all"><i data-lucide="bot" class="w-5 h-5 md:w-7 md:h-7 text-electric-blue"></i></div>
-                                <h3 class="font-display font-bold text-lg md:text-xl text-white mb-2">2. CoPilot Matches</h3>
-                                <p class="font-body text-gray-400 text-xs md:text-sm">Smart AI handles the filtering. Only the best verified options hit your desk.</p>
-                            </div>
-                            <div class="glass-panel p-5 md:p-8 rounded-2xl border border-white/5 hover:border-electric-blue/50 transition-all duration-300 hover:-translate-y-1 group bg-black/40">
-                                <div class="w-10 h-10 md:w-14 md:h-14 rounded-xl bg-electric-blue/10 flex items-center justify-center mb-4 border border-electric-blue/20 group-hover:shadow-[0_0_20px_rgba(0,224,255,0.2)] transition-all"><i data-lucide="check-circle-2" class="w-5 h-5 md:w-7 md:h-7 text-electric-blue"></i></div>
-                                <h3 class="font-display font-bold text-lg md:text-xl text-white mb-2">3. Approve & Run It</h3>
-                                <p class="font-body text-gray-400 text-xs md:text-sm">Confirm, lock in, and go live — no texts, no calls, no stress.</p>
-                            </div>
+                <div id="bar-view" class="w-full max-w-6xl flex flex-col items-center transition-all duration-500 ease-out transform translate-y-0 opacity-100">
+                    <h2 class="font-display font-black text-4xl md:text-5xl text-white mb-12 tracking-tight text-center">Hiring in Seconds. <span class="text-electric-blue">Managing with Ease.</span></h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-electric-blue/50 transition-all duration-300 hover:-translate-y-1 group bg-black/40">
+                            <div class="w-14 h-14 rounded-xl bg-electric-blue/10 flex items-center justify-center mb-6 border border-electric-blue/20 group-hover:shadow-[0_0_20px_rgba(0,224,255,0.2)] transition-all"><i data-lucide="clipboard-list" class="w-7 h-7 text-electric-blue"></i></div>
+                            <h3 class="font-display font-bold text-xl text-white mb-2">1. Post a Shift</h3>
+                            <p class="font-body text-gray-400 text-sm">Set the role, vibe, time, and pay. Launch your open call in moments.</p>
+                        </div>
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-electric-blue/50 transition-all duration-300 hover:-translate-y-1 group bg-black/40">
+                            <div class="w-14 h-14 rounded-xl bg-electric-blue/10 flex items-center justify-center mb-6 border border-electric-blue/20 group-hover:shadow-[0_0_20px_rgba(0,224,255,0.2)] transition-all"><i data-lucide="bot" class="w-7 h-7 text-electric-blue"></i></div>
+                            <h3 class="font-display font-bold text-xl text-white mb-2">2. CoPilot Matches</h3>
+                            <p class="font-body text-gray-400 text-sm">Smart AI handles the filtering. Only the best verified options hit your desk.</p>
+                        </div>
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-electric-blue/50 transition-all duration-300 hover:-translate-y-1 group bg-black/40">
+                            <div class="w-14 h-14 rounded-xl bg-electric-blue/10 flex items-center justify-center mb-6 border border-electric-blue/20 group-hover:shadow-[0_0_20px_rgba(0,224,255,0.2)] transition-all"><i data-lucide="check-circle-2" class="w-7 h-7 text-electric-blue"></i></div>
+                            <h3 class="font-display font-bold text-xl text-white mb-2">3. Approve & Run It</h3>
+                            <p class="font-body text-gray-400 text-sm">Confirm, lock in, and go live — no texts, no calls, no stress.</p>
                         </div>
                     </div>
-
-                    <!-- Staff View -->
-                    <div id="staff-view" class="w-full max-w-6xl flex flex-col items-center transition-all duration-500 ease-out transform translate-y-4 opacity-0 hidden">
-                        <h2 class="font-display font-black text-2xl md:text-5xl text-white mb-8 tracking-tight text-center">Get Booked. Get Paid. <br class="md:hidden"><span class="text-neon-rose">Get Chosen.</span></h2>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 w-full">
-                            <div class="glass-panel p-5 md:p-8 rounded-2xl border border-white/5 hover:border-neon-rose/50 transition-all duration-300 hover:-translate-y-1 group bg-black/40">
-                                <div class="w-10 h-10 md:w-14 md:h-14 rounded-xl bg-neon-rose/10 flex items-center justify-center mb-4 border border-neon-rose/20 group-hover:shadow-[0_0_20px_rgba(255,126,179,0.2)] transition-all"><i data-lucide="contact" class="w-5 h-5 md:w-7 md:h-7 text-neon-rose"></i></div>
-                                <h3 class="font-display font-bold text-lg md:text-xl text-white mb-2">1. Build Your Profile</h3>
-                                <p class="font-body text-gray-400 text-xs md:text-sm">Choose your roles. Set your schedule. Let your experience shine.</p>
-                            </div>
-                            <div class="glass-panel p-5 md:p-8 rounded-2xl border border-white/5 hover:border-neon-rose/50 transition-all duration-300 hover:-translate-y-1 group bg-black/40">
-                                <div class="w-10 h-10 md:w-14 md:h-14 rounded-xl bg-neon-rose/10 flex items-center justify-center mb-4 border border-neon-rose/20 group-hover:shadow-[0_0_20px_rgba(255,126,179,0.2)] transition-all"><i data-lucide="sparkles" class="w-5 h-5 md:w-7 md:h-7 text-neon-rose"></i></div>
-                                <h3 class="font-display font-bold text-lg md:text-xl text-white mb-2">2. Get Matched</h3>
-                                <p class="font-body text-gray-400 text-xs md:text-sm">CoPilot sends you shifts that match your energy and availability.</p>
-                            </div>
-                            <div class="glass-panel p-5 md:p-8 rounded-2xl border border-white/5 hover:border-neon-rose/50 transition-all duration-300 hover:-translate-y-1 group bg-black/40">
-                                <div class="w-10 h-10 md:w-14 md:h-14 rounded-xl bg-neon-rose/10 flex items-center justify-center mb-4 border border-neon-rose/20 group-hover:shadow-[0_0_20px_rgba(255,126,179,0.2)] transition-all"><i data-lucide="wallet" class="w-5 h-5 md:w-7 md:h-7 text-neon-rose"></i></div>
-                                <h3 class="font-display font-bold text-lg md:text-xl text-white mb-2">3. Show Up & Get Paid</h3>
-                                <p class="font-body text-gray-400 text-xs md:text-sm">Clock in. Crush the shift. Get paid same day instantly.</p>
-                            </div>
+                </div>
+                <div id="staff-view" class="w-full max-w-6xl flex flex-col items-center transition-all duration-500 ease-out transform translate-y-4 opacity-0 hidden">
+                    <h2 class="font-display font-black text-4xl md:text-5xl text-white mb-12 tracking-tight text-center">Get Booked. Get Paid. <span class="text-neon-rose">Get Chosen.</span></h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-neon-rose/50 transition-all duration-300 hover:-translate-y-1 group bg-black/40">
+                            <div class="w-14 h-14 rounded-xl bg-neon-rose/10 flex items-center justify-center mb-6 border border-neon-rose/20 group-hover:shadow-[0_0_20px_rgba(255,126,179,0.2)] transition-all"><i data-lucide="contact" class="w-7 h-7 text-neon-rose"></i></div>
+                            <h3 class="font-display font-bold text-xl text-white mb-2">1. Build Your Profile</h3>
+                            <p class="font-body text-gray-400 text-sm">Choose your roles. Set your schedule. Let your experience shine.</p>
+                        </div>
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-neon-rose/50 transition-all duration-300 hover:-translate-y-1 group bg-black/40">
+                            <div class="w-14 h-14 rounded-xl bg-neon-rose/10 flex items-center justify-center mb-6 border border-neon-rose/20 group-hover:shadow-[0_0_20px_rgba(255,126,179,0.2)] transition-all"><i data-lucide="sparkles" class="w-7 h-7 text-neon-rose"></i></div>
+                            <h3 class="font-display font-bold text-xl text-white mb-2">2. Get Matched</h3>
+                            <p class="font-body text-gray-400 text-sm">CoPilot sends you shifts that match your energy and availability.</p>
+                        </div>
+                        <div class="glass-panel p-8 rounded-2xl border border-white/5 hover:border-neon-rose/50 transition-all duration-300 hover:-translate-y-1 group bg-black/40">
+                            <div class="w-14 h-14 rounded-xl bg-neon-rose/10 flex items-center justify-center mb-6 border border-neon-rose/20 group-hover:shadow-[0_0_20px_rgba(255,126,179,0.2)] transition-all"><i data-lucide="wallet" class="w-7 h-7 text-neon-rose"></i></div>
+                            <h3 class="font-display font-bold text-xl text-white mb-2">3. Show Up & Get Paid</h3>
+                            <p class="font-body text-gray-400 text-sm">Clock in. Crush the shift. Get paid same day instantly.</p>
                         </div>
                     </div>
-
-                    <div class="mt-8 md:mt-16 flex flex-col items-center gap-4 pb-10">
-                        <p class="font-body text-gray-500 text-xs md:text-sm uppercase tracking-widest">Want to see it in action?</p>
-                        <button id="cta-btn" onclick="window.location.href='/demo/bar.html'" class="px-6 md:px-8 py-2 md:py-3 border border-electric-blue text-electric-blue hover:bg-electric-blue/10 font-bold rounded-xl transition-all duration-300 backdrop-blur-md hover:scale-[1.05] active:scale-[0.98] font-display text-xs tracking-[0.2em] uppercase shadow-[0_0_15px_rgba(0,224,255,0.2)]">EXPLORE BAR DEMO</button>
-                    </div>
+                </div>
+                <div class="mt-16 flex flex-col items-center gap-4">
+                    <p class="font-body text-gray-500 text-sm uppercase tracking-widest">Want to see it in action?</p>
+                    <button id="cta-btn" onclick="window.location.href='/demo/bar.html'" class="px-8 py-3 border border-electric-blue text-electric-blue hover:bg-electric-blue/10 font-bold rounded-xl transition-all duration-300 backdrop-blur-md hover:scale-[1.05] active:scale-[0.98] font-display text-xs tracking-[0.2em] uppercase shadow-[0_0_15px_rgba(0,224,255,0.2)]">EXPLORE BAR DEMO</button>
                 </div>
             </div>
         </section>
 
         <!-- SLIDE 4: THE INDUSTRY DIFFERENCE -->
-        <section id="slide-difference" class="carousel-slide bg-pure-black relative border-t border-white/5 flex-shrink-0">
+        <section id="slide-difference" class="carousel-slide bg-pure-black relative border-t border-white/5">
             <div class="absolute inset-0 z-0">
                 <div class="absolute inset-0 bg-[#000000CC] z-10"></div> 
                 <img src="https://images.unsplash.com/photo-1519671482502-97591ce87eb0?q=80&w=2940&auto=format&fit=crop" alt="Rooftop Lounge" class="w-full h-full object-cover opacity-100 object-center">
             </div>
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-electric-blue/5 rounded-full blur-[150px] pointer-events-none z-0"></div>
 
-            <div class="relative z-20 max-w-[90vw] mx-auto px-4 md:px-6 flex flex-col items-center justify-center h-full pt-16 md:pt-20">
-                <div class="text-center mb-6 md:mb-16 flex-shrink-0">
-                    <h2 class="font-display font-black text-3xl md:text-6xl text-white mb-4 tracking-tight">BUILT <span class="text-transparent bg-clip-text bg-gradient-to-r from-electric-blue to-white">DIFFERENT.</span> TRUSTED <span class="text-transparent bg-clip-text bg-gradient-to-r from-neon-rose to-purple-500">MORE.</span></h2>
-                    <p class="font-body text-gray-300 text-xs md:text-lg max-w-xl mx-auto leading-relaxed">You’re not just staffing — you’re upgrading your nightlife DNA.</p>
+            <div class="relative z-20 max-w-[90vw] mx-auto px-6 flex flex-col items-center justify-center h-full pt-20">
+                <div class="text-center mb-16">
+                    <h2 class="font-display font-black text-4xl md:text-6xl text-white mb-4 tracking-tight">BUILT <span class="text-transparent bg-clip-text bg-gradient-to-r from-electric-blue to-white">DIFFERENT.</span> TRUSTED <span class="text-transparent bg-clip-text bg-gradient-to-r from-neon-rose to-purple-500">MORE.</span></h2>
+                    <p class="font-body text-gray-300 text-sm md:text-lg max-w-xl mx-auto leading-relaxed">You’re not just staffing — you’re upgrading your nightlife DNA.</p>
                 </div>
 
-                <div class="w-full overflow-y-auto max-h-[60vh] md:max-h-none no-scrollbar pb-20 md:pb-0">
-                    <div id="diff-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 w-full max-w-7xl mb-16 pb-10">
-                        <div class="feature-card trust-pulse glass-panel p-5 md:p-8 rounded-2xl border border-white/5 hover:border-electric-blue/50 transition-colors duration-500 group hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(0,224,255,0.1)] bg-black/40 flex flex-col items-start">
-                            <div class="scan-overlay absolute inset-0 bg-gradient-to-r from-transparent via-electric-blue/10 to-transparent skew-x-[20deg] pointer-events-none opacity-0"></div>
-                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-electric-blue/10 flex items-center justify-center mb-4 md:mb-6 border border-electric-blue/20 relative z-10"><i data-lucide="cpu" class="w-5 h-5 md:w-6 md:h-6 text-electric-blue"></i></div>
-                            <h3 class="font-display font-bold text-lg md:text-2xl text-white mb-2 md:mb-3 relative z-10">Industry CoPilot</h3>
-                            <p class="font-body text-gray-400 text-xs md:text-sm leading-relaxed relative z-10">Your 24/7 AI assistant. Handles the chaos so you can focus on the vibes.</p>
-                        </div>
-                        <div class="feature-card trust-pulse glass-panel p-5 md:p-8 rounded-2xl border border-white/5 hover:border-uv-teal/50 transition-colors duration-500 group hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(0,247,209,0.1)] bg-black/40 flex flex-col items-start">
-                            <div class="scan-overlay absolute inset-0 bg-gradient-to-r from-transparent via-uv-teal/10 to-transparent skew-x-[20deg] pointer-events-none opacity-0"></div>
-                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-uv-teal/10 flex items-center justify-center mb-4 md:mb-6 border border-uv-teal/20 relative z-10"><i data-lucide="activity" class="w-5 h-5 md:w-6 md:h-6 text-uv-teal"></i></div>
-                            <h3 class="font-display font-bold text-lg md:text-2xl text-white mb-2 md:mb-3 relative z-10">Trust Index Engine</h3>
-                            <p class="font-body text-gray-400 text-xs md:text-sm leading-relaxed relative z-10">Data-backed reputation system — hire and get hired with confidence, not guesswork.</p>
-                        </div>
-                        <div class="feature-card trust-pulse glass-panel p-5 md:p-8 rounded-2xl border border-white/5 hover:border-neon-rose/50 transition-colors duration-500 group hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(255,126,179,0.1)] bg-black/40 flex flex-col items-start">
-                            <div class="scan-overlay absolute inset-0 bg-gradient-to-r from-transparent via-neon-rose/10 to-transparent skew-x-[20deg] pointer-events-none opacity-0"></div>
-                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-neon-rose/10 flex items-center justify-center mb-4 md:mb-6 border border-neon-rose/20 relative z-10"><i data-lucide="star" class="w-5 h-5 md:w-6 md:h-6 text-neon-rose"></i></div>
-                            <h3 class="font-display font-bold text-lg md:text-2xl text-white mb-2 md:mb-3 relative z-10">Verified Vibes Only</h3>
-                            <p class="font-body text-gray-400 text-xs md:text-sm leading-relaxed relative z-10">Ratings, reviews, and role-matching built for nightlife. No flakes. No stress.</p>
-                        </div>
+                <div id="diff-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-7xl mb-16">
+                    <div class="feature-card trust-pulse glass-panel p-8 rounded-2xl border border-white/5 hover:border-electric-blue/50 transition-colors duration-500 group hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(0,224,255,0.1)] bg-black/40 flex flex-col items-start">
+                         <div class="scan-overlay absolute inset-0 bg-gradient-to-r from-transparent via-electric-blue/10 to-transparent skew-x-[20deg] pointer-events-none opacity-0"></div>
+                        <div class="w-12 h-12 rounded-lg bg-electric-blue/10 flex items-center justify-center mb-6 border border-electric-blue/20 relative z-10"><i data-lucide="cpu" class="w-6 h-6 text-electric-blue"></i></div>
+                        <h3 class="font-display font-bold text-2xl text-white mb-3 relative z-10">Industry CoPilot</h3>
+                        <p class="font-body text-gray-400 text-sm leading-relaxed relative z-10">Your 24/7 AI assistant. Handles the chaos so you can focus on the vibes.</p>
                     </div>
-
-                    <div id="diff-cta" class="cta-section flex flex-col items-center gap-4 md:gap-6 opacity-0 pb-16 md:pb-10">
-                        <h3 class="font-display text-base md:text-xl text-white font-bold tracking-wide text-center">Ready to Upgrade Your Nightlife Experience?</h3>
-                        <div class="flex flex-col md:flex-row gap-4 md:gap-6 items-center w-full justify-center">
-                            <a href="/download.html" class="w-full md:w-64 px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(34,211,238,0.4)] hover:scale-[1.05] active:scale-[0.98] font-display text-xs tracking-[0.2em] uppercase text-center">Join Now</a>
-                            <a href="/demo/bar.html" class="w-full md:w-64 px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/30 hover:border-white text-white font-bold rounded-xl transition-all duration-300 backdrop-blur-md hover:scale-[1.05] active:scale-[0.98] font-display text-xs tracking-[0.2em] uppercase text-center">Explore Demo</a>
-                            <a href="/download.html" class="w-full md:w-64 px-8 py-4 bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-400 hover:to-rose-500 text-white font-bold rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(255,126,179,0.4)] hover:scale-[1.05] active:scale-[0.98] font-display text-xs tracking-[0.2em] uppercase text-center">Download Now</a>
-                        </div>
+                    <div class="feature-card trust-pulse glass-panel p-8 rounded-2xl border border-white/5 hover:border-uv-teal/50 transition-colors duration-500 group hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(0,247,209,0.1)] bg-black/40 flex flex-col items-start">
+                         <div class="scan-overlay absolute inset-0 bg-gradient-to-r from-transparent via-uv-teal/10 to-transparent skew-x-[20deg] pointer-events-none opacity-0"></div>
+                        <div class="w-12 h-12 rounded-lg bg-uv-teal/10 flex items-center justify-center mb-6 border border-uv-teal/20 relative z-10"><i data-lucide="activity" class="w-6 h-6 text-uv-teal"></i></div>
+                        <h3 class="font-display font-bold text-2xl text-white mb-3 relative z-10">Trust Index Engine</h3>
+                        <p class="font-body text-gray-400 text-sm leading-relaxed relative z-10">Data-backed reputation system — hire and get hired with confidence, not guesswork.</p>
+                    </div>
+                    <div class="feature-card trust-pulse glass-panel p-8 rounded-2xl border border-white/5 hover:border-neon-rose/50 transition-colors duration-500 group hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(255,126,179,0.1)] bg-black/40 flex flex-col items-start">
+                         <div class="scan-overlay absolute inset-0 bg-gradient-to-r from-transparent via-neon-rose/10 to-transparent skew-x-[20deg] pointer-events-none opacity-0"></div>
+                        <div class="w-12 h-12 rounded-lg bg-neon-rose/10 flex items-center justify-center mb-6 border border-neon-rose/20 relative z-10"><i data-lucide="star" class="w-6 h-6 text-neon-rose"></i></div>
+                        <h3 class="font-display font-bold text-2xl text-white mb-3 relative z-10">Verified Vibes Only</h3>
+                        <p class="font-body text-gray-400 text-sm leading-relaxed relative z-10">Ratings, reviews, and role-matching built for nightlife. No flakes. No stress.</p>
                     </div>
                 </div>
+
+                <div id="diff-cta" class="cta-section flex flex-col items-center gap-6 opacity-0">
+                    <h3 class="font-display text-xl text-white font-bold tracking-wide">Ready to Upgrade Your Nightlife Experience?</h3>
+                    <div class="flex flex-col md:flex-row gap-6 items-center">
+                         <a href="/download.html" class="w-64 px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(34,211,238,0.4)] hover:scale-[1.05] active:scale-[0.98] font-display text-xs tracking-[0.2em] uppercase text-center">Join Now</a>
+                        <a href="/demo/bar.html" class="w-64 px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/30 hover:border-white text-white font-bold rounded-xl transition-all duration-300 backdrop-blur-md hover:scale-[1.05] active:scale-[0.98] font-display text-xs tracking-[0.2em] uppercase text-center">Explore Demo</a>
+                        <a href="/download.html" class="w-64 px-8 py-4 bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-400 hover:to-rose-500 text-white font-bold rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(255,126,179,0.4)] hover:scale-[1.05] active:scale-[0.98] font-display text-xs tracking-[0.2em] uppercase text-center">Download Now</a>
+                    </div>
+                </div>
+
             </div>
         </section>
     </main>
