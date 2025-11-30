@@ -1,0 +1,88 @@
+# ——————————————————————————
+# INDUSTRY MONOREPO .GITIGNORE
+# ——————————————————————————
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+bun.lockb
+
+# Next.js / React / Vite build output
+.next/
+out/
+dist/
+build/
+.cache/
+.vercel/
+.temp/
+
+# Supabase (CRITICAL)
+supabase/.branches
+supabase/.temp
+supabase/.local
+supabase/config.toml
+supabase/.env
+supabase/functions/**/node_modules
+supabase/functions/**/.env
+
+# Environment Files (CRITICAL)
+.env
+.env.local
+.env.production
+.env.development
+.env.*.local
+
+# Private Keys / Tokens / Credentials
+*.pem
+*.key
+*.p12
+*.cert
+*.csr
+*.sqlite
+firebase-adminsdk*.json
+serviceAccount*.json
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# OS Junk
+.DS_Store
+Thumbs.db
+
+# IDE Junk
+.vscode/
+.vscode/*
+.idea/
+*.swp
+
+# Temporary
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Build Artifacts
+*.tsbuildinfo
+*.pid
+*.seed
+
+# Industry App Submodule Local Caches
+industry-app/.env
+industry-app/.next
+industry-app/node_modules
+industry-app/dist
+industry-app/out
+
+# Website Local Artifacts (if built)
+website/node_modules/
+website/.next/
+website/out/
+website/dist/
+website/build/
