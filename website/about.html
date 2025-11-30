@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INDUSTRY | About</title>
+    
+    <!-- Fonts: Same as Homepage -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800;900&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons (Lucide) for Dashboard UI -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'pure-black': '#050505',
+                        'panel-black': '#0A0A0A',
+                        'electric-blue': '#00e0ff',
+                        'uv-teal': '#00f7d1',
+                        'neon-rose': '#FF7EB3',
+                        'glass-border': 'rgba(255, 255, 255, 0.08)',
+                    },
+                    fontFamily: {
+                        'display': ['Montserrat', 'sans-serif'],
+                        'body': ['Space Grotesk', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'neon-blue': '0 0 10px rgba(0, 224, 255, 0.3)',
+                    },
+                    animation: {
+                        'fade-up': 'fadeUp 1s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeUp: {
+                            '0%': { opacity: 0, transform: 'translateY(20px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #050505;
+            color: white;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050505; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00e0ff; 
+        }
+
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .glass-card {
+            background: rgba(20, 20, 20, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Nav Link Styles */
+        .nav-link {
+            position: relative;
+            color: #9ca3af; /* gray-400 */
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .nav-link:hover, .nav-link.active, .group:hover .nav-link {
+            color: white;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background: #00e0ff;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-pure-black selection:bg-electric-blue selection:text-black overflow-x-hidden">
+
+    <!-- FIXED HEADER -->
+    <header class="fixed top-0 left-0 w-full h-24 z-50 transition-all duration-300 glass-panel border-b border-glass-border flex justify-between items-center px-8">
+        <!-- Left: Logo -->
+        <div class="flex items-center z-20">
+            <h1 class="font-display font-black text-2xl tracking-tighter text-white drop-shadow-lg">
+                INDUSTRY
+            </h1>
+        </div>
+
+        <!-- Center: Horizontal Menu (Absolute Centered) -->
+        <nav class="hidden md:flex absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 items-center gap-8">
+            <a href="INDUSTRY_Platform.html" class="nav-link font-display text-xs font-bold tracking-wider">
+                HOME
+            </a>
+            <!-- ACTIVE ITEM -->
+            <a href="#" class="nav-link active font-display text-xs font-bold tracking-wider">
+                ABOUT
+            </a>
+            <!-- DEMO Dropdown -->
+            <div class="relative group">
+                <button class="nav-link font-display text-xs font-bold tracking-wider flex items-center gap-1 outline-none">
+                    DEMO
+                    <i data-lucide="chevron-down" class="w-3 h-3 transition-transform group-hover:rotate-180"></i>
+                </button>
+                <div class="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 w-40 bg-black/90 border border-glass-border rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-2 group-hover:translate-y-0 z-50 backdrop-blur-md">
+                    <a href="#" class="block px-4 py-3 text-xs font-display font-bold tracking-wider hover:bg-white/10 text-gray-300 hover:text-white transition-colors border-b border-white/5 text-center">
+                        BAR DEMO
+                    </a>
+                    <a href="#" class="block px-4 py-3 text-xs font-display font-bold tracking-wider hover:bg-white/10 text-gray-300 hover:text-white transition-colors text-center">
+                        STAFF DEMO
+                    </a>
+                </div>
+            </div>
+            <a href="#" class="nav-link font-display text-xs font-bold tracking-wider">
+                LOG IN
+            </a>
+            <a href="#" class="nav-link font-display text-xs font-bold tracking-wider text-electric-blue drop-shadow-[0_0_5px_rgba(0,224,255,0.5)]">
+                DOWNLOAD NOW
+            </a>
+        </nav>
+
+        <!-- Right: LOG IN Button -->
+        <div class="flex items-center gap-6 z-20">
+            <button class="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-electric-blue/30 rounded-lg transition-all text-xs font-bold tracking-wider text-electric-blue shadow-neon-blue group backdrop-blur-sm">
+                <i data-lucide="user" class="w-4 h-4 group-hover:rotate-12 transition-transform"></i>
+                LOG IN
+            </button>
+        </div>
+    </header>
+
+    <!-- BACKGROUND (Fixed) -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
+        <!-- Subtle Ambient Glows -->
+        <div class="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-electric-blue/10 rounded-full blur-[150px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-neon-rose/10 rounded-full blur-[150px]"></div>
+        
+        <!-- Noise Texture Overlay -->
+        <div class="absolute inset-0 opacity-[0.03]" style="background-image: url('https://grainy-gradients.vercel.app/noise.svg');"></div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <!-- Expanded width to max-w-[90vw] to utilize more space -->
+    <main class="relative z-10 pt-32 pb-20 px-6 max-w-[90vw] mx-auto min-h-screen flex flex-col items-center">
+        
+        <!-- Section 1: The Manifesto -->
+        <!-- Expanded max-width to 6xl for wider text block -->
+        <div class="text-center max-w-6xl mx-auto mb-24 animate-fade-up">
+            <h2 class="font-display font-bold text-sm tracking-[0.3em] text-electric-blue mb-6 uppercase">Our Mission</h2>
+            
+            <!-- Responsive Text Sizing for 2-Line Break -->
+            <h1 class="font-display font-black text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-white leading-none tracking-tight mb-8">
+                REBUILDING THE <br class="block">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-400 to-gray-600">NIGHTLIFE BACKBONE.</span>
+            </h1>
+            
+            <p class="font-body text-lg md:text-xl lg:text-2xl text-gray-400 leading-relaxed max-w-4xl mx-auto">
+                Nightlife runs on chaos. We built INDUSTRY to bring order to the madness. 
+                We are the bridge between the best venues and the talent that fuels them. 
+                No more group texts. No more no-shows. Just pure, verified connection.
+            </p>
+        </div>
+
+        <!-- Section 2: The Story -->
+        <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center animate-fade-up" style="animation-delay: 0.4s;">
+            <div class="relative h-[500px] lg:h-[600px] rounded-2xl overflow-hidden border border-white/10 group">
+                <div class="absolute inset-0 bg-black/40 group-hover:bg-transparent transition-all duration-500 z-10"></div>
+                <img src="https://images.unsplash.com/photo-1514525253440-b393452e8d26?q=80&w=2874&auto=format&fit=crop" alt="Nightlife Scene" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+            </div>
+            
+            <div class="space-y-12 lg:max-w-2xl">
+                <div>
+                    <!-- Updated text color to text-electric-blue -->
+                    <h3 class="font-display font-bold text-3xl md:text-4xl text-electric-blue mb-6">Built by Nightlife, For Nightlife.</h3>
+                    <p class="font-body text-lg md:text-xl text-gray-400 leading-relaxed">
+                        We didn't start in a boardroom. We started behind the bar, at the door, and in the DJ booth. We know the pain of a Friday night call-out. We understand the hustle of picking up a last-minute shift.
+                    </p>
+                </div>
+                <div>
+                    <!-- Updated text color to text-electric-blue -->
+                    <h3 class="font-display font-bold text-3xl md:text-4xl text-electric-blue mb-6">The Intelligence Layer.</h3>
+                    <p class="font-body text-lg md:text-xl text-gray-400 leading-relaxed">
+                        INDUSTRY isn't just a job board. It's an intelligence layer for the hospitality world. We use data to predict fit, ensuring that the right energy matches the right room, every single time.
+                    </p>
+                </div>
+                
+                <button class="px-10 py-5 border border-white/20 hover:border-electric-blue text-white hover:text-electric-blue font-display font-bold text-sm tracking-[0.2em] uppercase rounded-lg transition-all duration-300 shadow-[0_0_20px_rgba(0,224,255,0.1)] hover:shadow-[0_0_30px_rgba(0,224,255,0.3)]">
+                    Join the Movement
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Simple Footer -->
+    <footer class="border-t border-white/5 py-12 text-center mt-12">
+        <p class="font-body text-gray-600 text-xs uppercase tracking-widest">© 2025 INDUSTRY Platform Inc.</p>
+    </footer>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
