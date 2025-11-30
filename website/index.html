@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INDUSTRY | The Bar Hiring App</title>
+    
+    <!-- Fonts: Montserrat for the heavy display feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Space+Grotesk:wght@300;500&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Markdown Parser for AI responses -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'pure-black': '#050505',
+                        'electric-blue': '#00e0ff',
+                        'uv-teal': '#00f7d1',
+                        'neon-rose': '#FF7EB3',
+                    },
+                    fontFamily: {
+                        'display': ['Montserrat', 'sans-serif'],
+                        'body': ['Space Grotesk', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-up': 'fadeUp 1.5s ease-out forwards',
+                        'glow': 'glow 3s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        fadeUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        glow: {
+                            '0%': { boxShadow: '0 0 10px rgba(255, 255, 255, 0.1)' },
+                            '100%': { boxShadow: '0 0 30px rgba(255, 255, 255, 0.4), 0 0 10px rgba(0, 224, 255, 0.2)' }
+                        }
+                    },
+                    backgroundImage: {
+                        'chrome-gradient': 'linear-gradient(180deg, #FFFFFF 0%, #A0A0A0 40%, #FFFFFF 100%)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #050505;
+            overflow-x: hidden;
+            margin: 0;
+            color: white;
+        }
+
+        /* Hide scrollbar for clean look */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 10; 
+            pointer-events: none; /* Pass interactions */
+        }
+
+        .content-layer {
+            position: relative;
+            z-index: 20;
+        }
+
+        .text-chrome {
+            background: linear-gradient(to bottom, #ffffff 0%, #b4b4b4 50%, #e0e0e0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            filter: drop-shadow(0 0 30px rgba(255,255,255,0.1));
+        }
+        
+        /* Loader */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease-out;
+        }
+
+        /* Terminal Output Scrollbar */
+        .terminal-scroll::-webkit-scrollbar { width: 4px; }
+        .terminal-scroll::-webkit-scrollbar-track { background: #111; }
+        .terminal-scroll::-webkit-scrollbar-thumb { background: #00e0ff; }
+
+        /* Markdown Styles within Terminal */
+        .prose-terminal h3 { color: #00e0ff; font-weight: 800; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .prose-terminal strong { color: #00f7d1; }
+        .prose-terminal ul { list-style-type: none; padding-left: 0; }
+        .prose-terminal li::before { content: "> "; color: #FF7EB3; }
+        .prose-terminal p { margin-bottom: 0.8rem; opacity: 0.9; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Loading Screen -->
+    <div id="loader" class="loader">
+        <div class="text-white font-display text-2xl tracking-[0.5em] animate-pulse">INDUSTRY<span class="text-electric-blue">.IO</span></div>
+    </div>
+
+    <!-- AI Command Modal (Hidden by default, retained for future use) -->
+    <div id="ai-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/80 backdrop-blur-md transition-opacity duration-300 opacity-0">
+        <div class="w-full max-w-2xl bg-black/90 border border-gray-800 shadow-[0_0_50px_rgba(255,255,255,0.05)] p-1 transform scale-95 transition-transform duration-300" id="ai-modal-content">
+            <!-- Terminal Header -->
+            <div class="flex justify-between items-center bg-gray-900/50 p-3 px-4 border-b border-gray-800">
+                <span class="font-display text-xs tracking-widest text-gray-400">✨ SYSTEM.AI // INTELLIGENCE_LAYER</span>
+                <button onclick="toggleAIModal()" class="text-gray-500 hover:text-white transition-colors">✕</button>
+            </div>
+
+            <!-- Terminal Content -->
+            <div class="p-6 md:p-8">
+                <!-- Tabs -->
+                <div class="flex gap-4 mb-6 border-b border-gray-800 pb-4">
+                    <button onclick="switchTab('liquid')" id="tab-liquid" class="text-sm font-display tracking-wider text-white border-b-2 border-white pb-1 transition-all">LIQUID LAB</button>
+                    <button onclick="switchTab('ops')" id="tab-ops" class="text-sm font-display tracking-wider text-gray-500 hover:text-white pb-1 transition-all">OPS ARCHITECT</button>
+                </div>
+
+                <!-- Input Area -->
+                <div class="space-y-4">
+                    <div id="prompt-label" class="text-xs text-gray-400 font-body uppercase tracking-widest">
+                        INPUT FLAVOR PROFILE / MOOD
+                    </div>
+                    <div class="relative">
+                        <span class="absolute left-3 top-3 text-electric-blue font-mono">></span>
+                        <input type="text" id="ai-input" 
+                            class="w-full bg-black border border-gray-700 focus:border-white focus:ring-0 text-white font-body pl-8 pr-4 py-3 outline-none transition-all placeholder-gray-700"
+                            placeholder="e.g., 'Smoky mezcal with a dangerous neon finish'"
+                        >
+                    </div>
+                    
+                    <button onclick="generateAI()" id="generate-btn" class="w-full bg-white text-black hover:bg-gray-200 px-6 py-3 transition-all duration-300 font-display text-sm tracking-widest uppercase font-bold">
+                        INITIATE SEQUENCE
+                    </button>
+                </div>
+
+                <!-- Output Area -->
+                <div class="mt-8 border-t border-gray-800 pt-6">
+                    <div class="flex justify-between items-end mb-2">
+                        <span class="text-[10px] text-gray-500 font-mono uppercase">TERMINAL_OUTPUT_01</span>
+                        <span id="loading-indicator" class="hidden text-[10px] text-electric-blue font-mono animate-pulse">PROCESSING_REQUEST...</span>
+                    </div>
+                    <div id="ai-output" class="h-48 overflow-y-auto terminal-scroll font-mono text-sm text-gray-300 leading-relaxed prose-terminal">
+                        <span class="text-gray-600">// AWAITING INPUT...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3D Canvas Container (Background + Droplets) -->
+    <div id="canvas-container"></div>
+
+    <!-- Main Content -->
+    <main class="content-layer w-full min-h-screen flex flex-col justify-center items-center px-4 overflow-hidden relative">
+        
+        <!-- Typography Container -->
+        <div class="text-center z-30">
+            
+            <!-- HERO TEXT -->
+            <h1 class="font-display font-black text-6xl md:text-8xl lg:text-[11rem] leading-none tracking-tighter text-chrome mb-2 mix-blend-overlay opacity-90 transition-transform duration-100 ease-out" id="hero-title">
+                INDUSTRY
+            </h1>
+
+            <!-- SUBHEADLINES -->
+            <div class="animate-fade-up" style="animation-delay: 0.2s;">
+                <!-- Tagline changed to neon blue (cyan-400) -->
+                <h2 class="font-display text-cyan-400 tracking-[0.3em] text-xs md:text-base lg:text-lg uppercase font-bold mb-8 drop-shadow-md">
+                    Book the Future.  Shift the Culture.
+                </h2>
+            </div>
+            
+            <!-- BUTTONS -->
+            <div class="flex flex-col md:flex-row gap-6 justify-center items-center animate-fade-up" style="animation-delay: 0.4s;">
+                <!-- Button 1: Neon Dashboard Theme (Centered) -->
+                <button class="w-64 md:w-auto px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl transition-all duration-300 shadow-[0_0_12px_rgba(34,211,238,0.5)] hover:scale-[1.05] active:scale-[0.98] font-display text-xs tracking-[0.2em] uppercase">
+                    Enter Platform
+                </button>
+            </div>
+        </div>
+
+    </main>
+    
+    <script>
+        // --- GEMINI API SETUP (Retained) ---
+        const apiKey = ""; 
+
+        let currentMode = 'liquid';
+        const systemPrompts = {
+            liquid: "You are a world-class avant-garde mixologist. Format output with Markdown.",
+            ops: "You are the Operations Architect for 'INDUSTRY'. Format output with Markdown."
+        };
+
+        function switchTab(mode) {
+            currentMode = mode;
+            const liquidBtn = document.getElementById('tab-liquid');
+            const opsBtn = document.getElementById('tab-ops');
+            const label = document.getElementById('prompt-label');
+            
+            if (mode === 'liquid') {
+                liquidBtn.className = 'text-sm font-display tracking-wider text-white border-b-2 border-white pb-1 transition-all';
+                opsBtn.className = 'text-sm font-display tracking-wider text-gray-500 hover:text-white pb-1 transition-all';
+                label.innerText = 'INPUT FLAVOR PROFILE / MOOD';
+            } else {
+                opsBtn.className = 'text-sm font-display tracking-wider text-white border-b-2 border-white pb-1 transition-all';
+                liquidBtn.className = 'text-sm font-display tracking-wider text-gray-500 hover:text-white pb-1 transition-all';
+                label.innerText = 'INPUT EVENT THEME / VIBE';
+            }
+        }
+
+        function toggleAIModal() {
+            const modal = document.getElementById('ai-modal');
+            const content = document.getElementById('ai-modal-content');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); content.classList.add('scale-100'); }, 10);
+            } else {
+                modal.classList.add('opacity-0'); content.classList.remove('scale-100'); content.classList.add('scale-95');
+                setTimeout(() => { modal.classList.add('hidden'); }, 300);
+            }
+        }
+        
+        async function generateAI() {
+            const input = document.getElementById('ai-input').value;
+            const outputDiv = document.getElementById('ai-output');
+            const loader = document.getElementById('loading-indicator');
+            
+            if (!input) return;
+            
+            outputDiv.innerHTML = '';
+            loader.classList.remove('hidden');
+            
+            try {
+                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `User Input: ${input}` }] }],
+                        systemInstruction: { parts: [{ text: systemPrompts[currentMode] }] }
+                    })
+                });
+                const data = await response.json();
+                outputDiv.innerHTML = marked.parse(data.candidates?.[0]?.content?.parts?.[0]?.text || "Error");
+            } catch(e) {
+                console.error(e);
+                outputDiv.innerHTML = "Error connecting to AI. Please ensure API key is configured.";
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+
+        // --- VISUALS: THREE.JS SETUP ---
+        window.onload = () => {
+            const loader = document.getElementById('loader');
+            setTimeout(() => loader.style.opacity = '0', 500);
+            setTimeout(() => loader.remove(), 1500);
+            initThreeJS();
+        };
+
+        function initThreeJS() {
+            const container = document.getElementById('canvas-container');
+            
+            const scene = new THREE.Scene();
+            // Dark fog to blend edges
+            scene.fog = new THREE.Fog(0x050505, 5, 25);
+            
+            const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.z = 5;
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            container.appendChild(renderer.domElement);
+
+            // --- 1. BACKGROUND IMAGE PLANE ---
+            const bgTexture = new THREE.TextureLoader().load('https://images.unsplash.com/photo-1575023782549-62ca2d2f3b4e?q=80&w=2874&auto=format&fit=crop');
+            
+            const bgGeometry = new THREE.PlaneGeometry(24, 16); 
+            const bgMaterial = new THREE.MeshBasicMaterial({ map: bgTexture });
+            const bgMesh = new THREE.Mesh(bgGeometry, bgMaterial);
+            bgMesh.position.z = -3; 
+            bgMesh.scale.set(1.1, 1.1, 1.1); 
+            scene.add(bgMesh);
+
+            // --- 2. LIGHTING (Studio Setup for Wet Glass) ---
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambientLight);
+            
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            dirLight.position.set(5, 10, 10);
+            scene.add(dirLight);
+
+            // Back/Rim light to catch droplet edges
+            const backLight = new THREE.PointLight(0x00e0ff, 0.8, 20);
+            backLight.position.set(-5, 5, -1);
+            scene.add(backLight);
+
+            // --- AMBIENT GLOWS ---
+            const leftGlow = new THREE.PointLight(0x22d3ee, 1.5, 30);
+            leftGlow.position.set(-10, 0, 5);
+            scene.add(leftGlow);
+
+            const rightGlow = new THREE.PointLight(0xFF00FF, 1.5, 30);
+            rightGlow.position.set(10, 0, 5);
+            scene.add(rightGlow);
+
+            // --- NEW: 3D MARTINI GLASS (Procedural) ---
+            const martiniGroup = new THREE.Group();
+            
+            // 1. GLASS PROFILE (Points for Lathe)
+            const glassPoints = [];
+            glassPoints.push(new THREE.Vector2(0, 0));
+            glassPoints.push(new THREE.Vector2(1.0, 0)); 
+            glassPoints.push(new THREE.Vector2(1.0, 0.1));
+            glassPoints.push(new THREE.Vector2(0.12, 0.2)); 
+            glassPoints.push(new THREE.Vector2(0.12, 1.8)); 
+            glassPoints.push(new THREE.Vector2(1.5, 3.2));
+            glassPoints.push(new THREE.Vector2(1.4, 3.2));
+            glassPoints.push(new THREE.Vector2(0.1, 1.9)); 
+
+            const glassGeo = new THREE.LatheGeometry(glassPoints, 64);
+            
+            // MATERIAL: SMOKED / TINTED CRYSTAL (Darker, Semi-Opaque)
+            const glassMat = new THREE.MeshPhysicalMaterial({
+                color: 0x222222,        // Dark Grey/Black tint
+                emissive: 0x110011,     // Very faint purple/pink undertone
+                emissiveIntensity: 0.1,
+                metalness: 0.2,         // Slight metallic sheen for "luxe" feel
+                roughness: 0.02,        // Extremely smooth
+                transmission: 0.4,      // Smoked glass (not fully clear)
+                opacity: 0.7,           // 70% Opacity as requested
+                thickness: 0.8,         // Thicker glass for depth
+                ior: 1.5,               // Standard glass refraction
+                reflectivity: 1.0,      // High reflectivity for specular highlights
+                clearcoat: 1.0,         // Wet look
+                clearcoatRoughness: 0.0,
+                transparent: true,
+                side: THREE.DoubleSide,
+                envMapIntensity: 2.0    // Catch reflections strongly
+            });
+            const glassMesh = new THREE.Mesh(glassGeo, glassMat);
+            martiniGroup.add(glassMesh);
+
+            // NEON PINK OUTLINE (Edges)
+            const edgesGeo = new THREE.EdgesGeometry(glassGeo, 15);
+            const edgesMat = new THREE.LineBasicMaterial({ 
+                color: 0xFF00FF, // Neon Pink
+                linewidth: 2,
+                opacity: 0.8,
+                transparent: true
+            });
+            const glassOutline = new THREE.LineSegments(edgesGeo, edgesMat);
+            martiniGroup.add(glassOutline);
+
+
+            // 1b. RIM HIGHLIGHT (Top Ring) - Neon Pink
+            const rimGeo = new THREE.TorusGeometry(1.45, 0.02, 16, 100);
+            const rimMat = new THREE.MeshBasicMaterial({ 
+                color: 0xFF00FF, // Neon Pink
+                transparent: true,
+                opacity: 0.9,
+                blending: THREE.AdditiveBlending
+            });
+            const rimMesh = new THREE.Mesh(rimGeo, rimMat);
+            rimMesh.rotation.x = Math.PI / 2;
+            rimMesh.position.y = 3.2; 
+            martiniGroup.add(rimMesh);
+
+            // 1c. BASE HIGHLIGHT (Bottom Ring)
+            const baseGeo = new THREE.TorusGeometry(1.0, 0.02, 16, 100);
+            const baseMesh = new THREE.Mesh(baseGeo, rimMat); 
+            baseMesh.rotation.x = Math.PI / 2;
+            baseMesh.position.y = 0.0;
+            martiniGroup.add(baseMesh);
+            
+            // Solid smoked base disk (subtle)
+            const baseDiskGeo = new THREE.CircleGeometry(1.0, 32);
+            const baseDiskMesh = new THREE.Mesh(baseDiskGeo, glassMat);
+            baseDiskMesh.rotation.x = -Math.PI / 2;
+            baseDiskMesh.position.y = 0.01;
+            martiniGroup.add(baseDiskMesh);
+
+            // 2. LIQUID (Faint Neon Pink Vapor)
+            const liquidGeo = new THREE.ConeGeometry(1.25, 1.0, 32, 1, true); 
+            const liquidMat = new THREE.MeshPhysicalMaterial({
+                color: 0xFF00FF,        // Neon Pink
+                emissive: 0xFF00FF,
+                emissiveIntensity: 0.3, // Bumped slightly to show through smoked glass
+                metalness: 0.1,
+                roughness: 0.1,
+                transmission: 0.6,      
+                ior: 1.1,               
+                transparent: true,
+                opacity: 0.5,           
+                side: THREE.DoubleSide
+            });
+            const liquidMesh = new THREE.Mesh(liquidGeo, liquidMat);
+            liquidMesh.position.y = 2.7; 
+            liquidMesh.rotation.x = Math.PI; 
+            martiniGroup.add(liquidMesh);
+
+            // Pink Ambient Light inside bowl
+            const liquidLight = new THREE.PointLight(0xFF00FF, 1.0, 4);
+            liquidLight.position.set(0, 2.8, 0);
+            martiniGroup.add(liquidLight);
+
+            // --- NEW: COCKTAIL STICK (Straw) ---
+            const garnishGroup = new THREE.Group();
+
+            // Cocktail Stick (Diagonal, Gradient)
+            const stickGeo = new THREE.CylinderGeometry(0.03, 0.03, 3.0, 16);
+            // Simple gradient shader material
+            const stickMat = new THREE.ShaderMaterial({
+                uniforms: {
+                    color1: { value: new THREE.Color(0x00e0ff) }, // Electric Blue (Bottom)
+                    color2: { value: new THREE.Color(0xFF00FF) }, // Neon Pink (Top)
+                },
+                vertexShader: `
+                    varying vec2 vUv;
+                    void main() {
+                        vUv = uv;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    uniform vec3 color1;
+                    uniform vec3 color2;
+                    varying vec2 vUv;
+                    void main() {
+                        // Use a higher power on vUv.y to push the pink gradient (color2)
+                        // up, extending the blue (color1) part deeper into the bowl.
+                        gl_FragColor = vec4(mix(color1, color2, pow(vUv.y, 3.0)), 1.0);
+                    }
+                `,
+                transparent: true
+            });
+            const stickMesh = new THREE.Mesh(stickGeo, stickMat);
+            garnishGroup.add(stickMesh);
+
+            // Position and Rotate the Straw
+            // Rotated 45 degrees to float diagonally
+            garnishGroup.rotation.z = Math.PI / 4; 
+            garnishGroup.rotation.y = Math.PI / 6; // Slight twist for 3D depth
+            
+            // Resting on left rim, bottom inside bowl
+            garnishGroup.position.set(-1.15, 3.5, 0);
+            
+            // Reduced scale by 15%
+            garnishGroup.scale.set(0.85, 0.85, 0.85);
+
+            martiniGroup.add(garnishGroup);
+
+
+            // 4. PARTICLES (Rising Bubbles)
+            const bubbleCount = 30;
+            const bubbleGeo = new THREE.BufferGeometry();
+            const bubblePos = new Float32Array(bubbleCount * 3);
+            const bubbleSpeeds = [];
+
+            for(let i=0; i<bubbleCount; i++) {
+                // Random pos inside cone roughly
+                const r = Math.random() * 0.8;
+                const theta = Math.random() * Math.PI * 2;
+                bubblePos[i*3] = r * Math.cos(theta);     // x
+                bubblePos[i*3+1] = 2.0 + Math.random();   // y (inside bowl height)
+                bubblePos[i*3+2] = r * Math.sin(theta);   // z
+                
+                bubbleSpeeds.push(0.005 + Math.random() * 0.01);
+            }
+            bubbleGeo.setAttribute('position', new THREE.BufferAttribute(bubblePos, 3));
+            
+            const bubbleMat = new THREE.PointsMaterial({
+                color: 0xFF00FF,
+                size: 0.05,
+                transparent: true,
+                opacity: 0.6,
+                blending: THREE.AdditiveBlending
+            });
+            const bubbleSystem = new THREE.Points(bubbleGeo, bubbleMat);
+            martiniGroup.add(bubbleSystem);
+
+            // POSITIONING & SCALING
+            martiniGroup.position.set(0, -2.6, -1.5); 
+            martiniGroup.scale.set(1.4, 1.4, 1.4);
+            
+            scene.add(martiniGroup);
+
+            // --- 3. CONDENSATION DROPLETS (Hyper-Realism) ---
+            const dropCount = 7000; 
+            const dropGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+            
+            const dropMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xffffff,
+                metalness: 0,        
+                roughness: 0.1,      
+                transmission: 0.99,  
+                thickness: 0.8,      
+                ior: 1.8,            
+                clearcoat: 1.0,      
+                clearcoatRoughness: 0.05,
+                transparent: true,
+                envMapIntensity: 1.5
+            });
+
+            const drops = new THREE.InstancedMesh(dropGeometry, dropMaterial, dropCount);
+            scene.add(drops);
+
+            // Initialize Drop Data with "Vignette Distribution"
+            const dummy = new THREE.Object3D();
+            const dropData = []; 
+
+            for (let i = 0; i < dropCount; i++) {
+                // DISTRIBUTION: Focus on edges (Vignette)
+                let x, y;
+                const roll = Math.random();
+                
+                if (roll < 0.75) { 
+                    // 75% in outer zone
+                    const angle = Math.random() * Math.PI * 2;
+                    const r = 4.5 + Math.random() * 8; 
+                    x = Math.cos(angle) * r;
+                    y = Math.sin(angle) * r * 0.7; 
+                } else {
+                    // 25% sparse fill in center
+                    x = (Math.random() - 0.5) * 8;
+                    y = (Math.random() - 0.5) * 6;
+                }
+                
+                const z = 0; 
+                
+                // SIZE & SHAPE LOGIC
+                let s = Math.pow(Math.random(), 3) * 1.5 + 0.15; 
+                let stretchY = 1.0 + (Math.random() * Math.random() * 0.8); 
+                
+                if (Math.random() < 0.02) {
+                    stretchY = 3.0 + Math.random() * 2.0;
+                    s *= 0.8; // Thin streak
+                }
+
+                dummy.position.set(x, y, z);
+                dummy.scale.set(s, s * stretchY, s * 0.4); 
+                dummy.rotation.z = (Math.random() - 0.5) * 0.2; 
+                
+                dummy.updateMatrix();
+                drops.setMatrixAt(i, dummy.matrix);
+
+                dropData.push({
+                    x: x,
+                    y: y,
+                    z: z,
+                    scaleX: s,
+                    scaleY: s * stretchY,
+                    scaleZ: s * 0.4,
+                    vx: 0,
+                    vy: 0,
+                    gravitySpeed: (s > 0.5 && stretchY < 2.0 ? Math.random() * 0.002 + 0.0005 : 0)
+                });
+            }
+            drops.instanceMatrix.needsUpdate = true;
+
+
+            // --- INTERACTION & ANIMATION ---
+            const mouse = new THREE.Vector2(-9999, -9999); 
+            const targetMouse = new THREE.Vector2();
+            let scrollY = 0;
+
+            document.addEventListener('mousemove', (e) => {
+                targetMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                targetMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                
+                const title = document.getElementById('hero-title');
+                if(title) {
+                    title.style.transform = `translate(${targetMouse.x * 5}px, ${targetMouse.y * 5}px)`;
+                }
+            });
+
+            window.addEventListener('scroll', () => {
+                scrollY = window.scrollY;
+            });
+
+            const clock = new THREE.Clock();
+
+            function animate() {
+                requestAnimationFrame(animate);
+                const time = clock.getElapsedTime();
+
+                // Smooth mouse tracking
+                mouse.x += (targetMouse.x - mouse.x) * 0.1;
+                mouse.y += (targetMouse.y - mouse.y) * 0.1;
+
+                // 1. Background Parallax
+                bgMesh.rotation.y = mouse.x * 0.02;
+                bgMesh.rotation.x = -mouse.y * 0.02;
+                
+                // 1.5 Animate Particles
+                const positions = bubbleSystem.geometry.attributes.position.array;
+                for(let i=0; i<bubbleCount; i++) {
+                    positions[i*3+1] += bubbleSpeeds[i];
+                    
+                    if(positions[i*3+1] > 3.0) {
+                        positions[i*3+1] = 2.0; 
+                        const r = Math.random() * 0.8 * (1 - (positions[i*3+1]-2.0)); 
+                        const theta = Math.random() * Math.PI * 2;
+                        positions[i*3] = r * Math.cos(theta);
+                        positions[i*3+2] = r * Math.sin(theta);
+                    }
+                }
+                bubbleSystem.geometry.attributes.position.needsUpdate = true;
+
+
+                // 2. Update Droplets
+                for (let i = 0; i < dropCount; i++) {
+                    const data = dropData[i];
+
+                    // Cursor Repulsion
+                    const mouseWorldX = mouse.x * 9; 
+                    const mouseWorldY = mouse.y * 7;
+
+                    const dx = data.x - mouseWorldX;
+                    const dy = data.y - mouseWorldY;
+                    const distSq = dx*dx + dy*dy;
+                    
+                    if (distSq < 4.0) {
+                        const dist = Math.sqrt(distSq);
+                        const force = (2.0 - dist) * 0.02; 
+                        data.vx += (dx / dist) * force;
+                        data.vy += (dy / dist) * force;
+                    }
+
+                    data.x += data.vx;
+                    data.y += data.vy;
+                    data.vx *= 0.92; 
+                    data.vy *= 0.92;
+
+                    // Scroll & Gravity
+                    // Reduced speed by 50% (.5x speed)
+                    let totalSpeed = (data.gravitySpeed + (scrollY * 0.0001)) * .1; 
+                    data.y -= totalSpeed;
+
+                    if (data.y < -9) {
+                        data.y = 9;
+                        data.x = (Math.random() - 0.5) * 20;
+                        data.vx = 0;
+                        data.vy = 0;
+                    }
+
+                    dummy.position.set(data.x, data.y, data.z);
+                    dummy.scale.set(data.scaleX, data.scaleY, data.scaleZ);
+                    dummy.updateMatrix();
+                    drops.setMatrixAt(i, dummy.matrix);
+                }
+                drops.instanceMatrix.needsUpdate = true;
+
+                renderer.render(scene, camera);
+            }
+
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+    </script>
+</body>
+</html>
