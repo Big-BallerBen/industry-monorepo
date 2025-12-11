@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>INDUSTRY.IO</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS with Custom Config -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              // Semantic Colors (Mapped to CSS Variables)
+              'app': 'var(--bg-app)',
+              'panel': 'var(--bg-panel)',
+              'brand': 'var(--brand-primary)',
+              'glass-border': 'var(--border-glass)',
+              'txt-primary': 'var(--text-primary)',
+              'txt-secondary': 'var(--text-secondary)',
+              'txt-tertiary': 'var(--text-tertiary)',
+              
+              // Legacy/Hardcoded values (kept for specific accents)
+              'pure-black': '#050505',
+              'panel-black': '#0A0A0A',
+              'electric-blue': '#00e0ff',
+              'uv-teal': '#00f7d1',
+              'neon-rose': '#FF7EB3',
+            },
+            fontFamily: {
+              'display': ['Montserrat', 'sans-serif'],
+              'body': ['Space Grotesk', 'sans-serif'],
+            },
+            backgroundImage: {
+              'glass-gradient': 'linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.00) 100%)',
+            }
+          },
+        },
+      }
+    </script>
+
+    <style>
+      /* Global Styles for Mobile App Feel */
+      body {
+        -webkit-tap-highlight-color: transparent;
+        overscroll-behavior-y: none; /* Prevent pull-to-refresh on mobile */
+        
+        /* Safe Area Insets for Notch/Home Indicator */
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        
+        /* Disable text selection and image callouts */
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+      }
+      
+      /* Hide Scrollbar */
+      ::-webkit-scrollbar {
+        width: 0px;
+        background: transparent;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "lucide-react": "https://esm.sh/lucide-react@^0.559.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.1/",
+    "react/": "https://esm.sh/react@^19.2.1/",
+    "react": "https://esm.sh/react@^19.2.1",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.10.1",
+    "react-markdown": "https://esm.sh/react-markdown@^10.1.0",
+    "framer-motion": "https://esm.sh/framer-motion@^12.23.26"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

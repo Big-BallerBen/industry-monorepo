@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* --- DEFAULT: STAFF DARK (The "Nightlife" Vibe) --- */
+  --bg-app: #050505;
+  --bg-panel: rgba(20, 20, 20, 0.85);       
+  --bg-card: rgba(255, 255, 255, 0.05);    
+  --bg-input: rgba(255, 255, 255, 0.08);
+  --bg-overlay: rgba(0, 0, 0, 0.85); /* Deep backdrop */
+  
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af; /* gray-400 */
+  --text-tertiary: #6b7280;  /* gray-500 */
+  --text-inverted: #000000;
+
+  --brand-primary: #FF7EB3; /* Neon Rose */
+  --brand-glow: rgba(255, 126, 179, 0.5);
+  
+  --border-glass: rgba(255, 255, 255, 0.1);
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* --- STAFF LIGHT (Day Mode - Frosted Glass) --- */
+.theme-staff-light {
+  --bg-app: #F3F4F6; /* Cool Gray 100 */
+  
+  /* Physical Frosted Glass Formula - More Solid */
+  --bg-panel: rgba(255, 255, 255, 0.95); 
+  --bg-card: #ffffff; 
+  --bg-input: #ffffff; 
+  --bg-overlay: rgba(0, 0, 0, 0.2); /* Subtle light mode dimming */
+
+  --text-primary: #111827; /* gray-900 */
+  --text-secondary: #1f2937; /* gray-800 */
+  --text-tertiary: #4b5563; /* gray-600 */
+  --text-inverted: #ffffff;
+
+  --brand-primary: #db2777; /* pink-600 */
+  --brand-glow: rgba(219, 39, 119, 0.15);
+
+  /* Subtle Black Outline for Container Definition */
+  --border-glass: rgba(0, 0, 0, 0.08); 
+  --shadow-card: 0 12px 40px -8px rgba(0, 0, 0, 0.12);
+}
+
+/* --- VENUE DARK --- */
+.theme-venue-dark {
+  --bg-app: #050505;
+  --bg-panel: rgba(20, 20, 20, 0.85);
+  --bg-card: rgba(255, 255, 255, 0.05);
+  --bg-input: rgba(255, 255, 255, 0.08);
+  --bg-overlay: rgba(0, 0, 0, 0.85);
+  
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af;
+  --text-tertiary: #6b7280;
+  --text-inverted: #000000;
+
+  --brand-primary: #00e0ff; /* Electric Blue */
+  --brand-glow: rgba(0, 224, 255, 0.5);
+  
+  --border-glass: rgba(255, 255, 255, 0.1);
+}
+
+/* --- VENUE LIGHT (Day Mode - Frosted Glass) --- */
+.theme-venue-light {
+  --bg-app: #F8FAFC; 
+  
+  --bg-panel: rgba(255, 255, 255, 0.95);
+  --bg-card: #ffffff;
+  --bg-input: #ffffff;
+  --bg-overlay: rgba(0, 0, 0, 0.2);
+
+  --text-primary: #0f172a; 
+  --text-secondary: #1e293b; 
+  --text-tertiary: #475569;
+  --text-inverted: #ffffff;
+
+  --brand-primary: #0284c7; 
+  --brand-glow: rgba(2, 132, 199, 0.15);
+  
+  --border-glass: rgba(0, 0, 0, 0.08);
+  --shadow-card: 0 12px 40px -8px rgba(0, 0, 0, 0.12);
+}
+
+body {
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* --- UTILITY CLASSES --- */
+
+.glass-panel {
+  background: var(--bg-panel);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-glass);
+  box-shadow: var(--shadow-card);
+}
+
+.content-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  box-shadow: var(--shadow-card);
+  border-radius: 0.75rem; /* rounded-xl */
+}
+
+.theme-input {
+  background: var(--bg-input);
+  border: 1px solid var(--border-glass);
+  color: var(--text-primary);
+}
+.theme-input:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 1px var(--brand-primary);
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
