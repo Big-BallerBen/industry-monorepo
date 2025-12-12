@@ -3,10 +3,9 @@ import { HashRouter as Router, Routes, Route, Navigate, useLocation, useNavigate
 
 // --- PUBLIC PAGES ---
 import Landing from './pages/Landing';
-import Login from './pages/Login';         // Ensure this file exists
-import Download from './pages/Download';   // Ensure this file exists
+import Download from './pages/Download';   // <--- THE GOAL
 
-// --- STAFF PAGES ---
+// --- STAFF PAGES (For internal testing after install) ---
 import StaffDashboard from './pages/staff/StaffDashboard';
 import StaffDiscovery from './pages/staff/StaffDiscovery';
 import StaffShifts from './pages/staff/StaffShifts';
@@ -25,13 +24,6 @@ import VenueShifts from './pages/venue/VenueShifts';
 import VenueMessages from './pages/venue/VenueMessages';
 import VenueProfile from './pages/venue/VenueProfile';
 
-// --- PROMOTER PAGES ---
-import PromoterDashboard from './pages/promoter/PromoterDashboard';
-import PromoterDiscovery from './pages/promoter/PromoterDiscovery';
-import PromoterShifts from './pages/promoter/PromoterShifts';
-import PromoterMessages from './pages/promoter/PromoterMessages';
-import PromoterProfile from './pages/promoter/PromoterProfile';
-
 // --- COMPONENTS ---
 import MobileNav from './components/MobileNav';
 import Header from './components/Header';
@@ -41,11 +33,12 @@ import AddAvailabilityDrawer from './components/AddAvailabilityDrawer';
 import MenuDrawer from './components/MenuDrawer';
 import { ThemeWrapper } from './components/ThemeWrapper';
 
-// --- 1. SPLASH SCREEN COMPONENT (Internal) ---
+// --- 1. SPLASH SCREEN COMPONENT ---
 const SplashScreen = () => {
   const navigate = useNavigate();
   useEffect(() => {
-    const timer = setTimeout(() => navigate('/home'), 2500); // 2.5s delay then go to Landing
+    // 2.5s Splash -> Then go to Landing
+    const timer = setTimeout(() => navigate('/home'), 2500); 
     return () => clearTimeout(timer);
   }, [navigate]);
 
@@ -70,22 +63,21 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isActionDrawerOpen, setIsActionDrawerOpen] = useState(false);
   const [isMenuDrawerOpen, setIsMenuDrawerOpen] = useState(false);
 
-  // Hide UI on Public Pages
-  const isPublic = ['/', '/home', '/login', '/download'].includes(location.pathname);
+  // Hide UI on Splash, Landing, and Download pages
+  const isPublic = ['/', '/home', '/download'].includes(location.pathname);
 
-  // Role Logic
+  // Role Logic (Auto-detect based on URL)
   const path = location.pathname;
-  let role: 'staff' | 'venue' | 'promoter' | null = null;
+  let role: 'staff' | 'venue' | null = null;
   if (path.startsWith('/staff')) role = 'staff';
   if (path.startsWith('/venue')) role = 'venue';
-  if (path.startsWith('/promoter')) role = 'promoter';
 
   const handleAction = () => setIsActionDrawerOpen(false);
 
   return (
     <div className="min-h-screen bg-app text-txt-primary font-body relative overflow-hidden transition-colors duration-300">
       
-      {/* Header - Only show inside the App (Not on Landing/Login/Download) */}
+      {/* Header - Only show inside the App (Not on public pages) */}
       {!isPublic && (
         <Header 
           onOpenAi={() => setIsAiModalOpen(true)} 
@@ -96,13 +88,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
       {children}
 
-      {/* Global Modals (Only render if logged in/not public to save resources) */}
+      {/* Global Modals (Only render if inside app) */}
       {!isPublic && (
         <>
           <AiModal isOpen={isAiModalOpen} onClose={() => setIsAiModalOpen(false)} />
           <MenuDrawer isOpen={isMenuDrawerOpen} onClose={() => setIsMenuDrawerOpen(false)} />
           
-          {(role === 'venue' || role === 'promoter') && (
+          {role === 'venue' && (
             <PostShiftDrawer open={isActionDrawerOpen} onClose={() => setIsActionDrawerOpen(false)} onPost={handleAction} />
           )}
           {role === 'staff' && (
@@ -123,13 +115,12 @@ const App: React.FC = () => {
       <ThemeWrapper>
         <Layout>
           <Routes>
-            {/* FLOW: Splash -> Home -> Login -> App */}
+            {/* FLOW: Splash -> Home -> Download */}
             <Route path="/" element={<SplashScreen />} />
             <Route path="/home" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
             <Route path="/download" element={<Download />} />
 
-            {/* STAFF */}
+            {/* STAFF ROUTES (Accessible directly via URL for testing) */}
             <Route path="/staff/dashboard" element={<StaffDashboard />} />
             <Route path="/staff/discovery" element={<StaffDiscovery />} />
             <Route path="/staff/shifts" element={<StaffShifts />} />
@@ -141,19 +132,12 @@ const App: React.FC = () => {
             <Route path="/staff/settings" element={<StaffSettings />} />
             <Route path="/staff/safety" element={<StaffSafety />} />
 
-            {/* VENUE */}
+            {/* VENUE ROUTES */}
             <Route path="/venue/dashboard" element={<VenueDashboard />} />
             <Route path="/venue/discovery" element={<VenueDiscovery />} />
             <Route path="/venue/shifts" element={<VenueShifts />} />
             <Route path="/venue/messages" element={<VenueMessages />} />
             <Route path="/venue/profile" element={<VenueProfile />} />
-
-            {/* PROMOTER */}
-            <Route path="/promoter/dashboard" element={<PromoterDashboard />} />
-            <Route path="/promoter/discovery" element={<PromoterDiscovery />} />
-            <Route path="/promoter/shifts" element={<PromoterShifts />} />
-            <Route path="/promoter/messages" element={<PromoterMessages />} />
-            <Route path="/promoter/profile" element={<PromoterProfile />} />
 
             {/* FALLBACK: Send unknown links to Splash */}
             <Route path="*" element={<Navigate to="/" replace />} />
